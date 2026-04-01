@@ -26,6 +26,16 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // increased for SSE and multiple tabs
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  skip: (req) => req.path.endsWith('/events') // Skip rate limiting for SSE
+});
+
+app.use(globalLimiter);
+
 const corsOptions = {};
 
 if (process.env.NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
@@ -56,6 +66,16 @@ const webhookLimiter = rateLimit({
 app.use(cors(corsOptions));
 app.use(
   helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", "https://api-m.sandbox.paypal.com", "https://api-m.paypal.com", "https://api.stripe.com"],
+        frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https://*.stripe.com", "https://www.paypalobjects.com"],
+      },
+    },
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })

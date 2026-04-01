@@ -103,7 +103,13 @@
     "search_placeholder": "Rechercher des produits...",
     "no_products_title": "Aucun produit trouvé",
     "no_products_desc": "Essayez d'ajuster votre recherche ou vos filtres pour trouver ce que vous cherchez.",
-    "clear_filters": "Effacer tous les filtres"
+    "clear_filters": "Effacer tous les filtres",
+    "sort": {
+      "newest": "Plus récents",
+      "price_low_to_high": "Prix : Croissant",
+      "price_high_to_low": "Prix : Décroissant",
+      "highest_rated": "Mieux notés"
+    }
   },
   "product": {
     "reviews_label": "({{count}} avis)",
@@ -173,8 +179,27 @@
     "elegance_desc": "Une collection soignée pour sublimer votre routine.",
     "featured_title": "Produits Vedettes",
     "view_shop": "Voir la boutique",
-    "categories_title": "Acheter par catégorie"
+    "categories_title": "Acheter par catégorie",
+    "best_sellers_title": "Collection des Meilleures Ventes",
+    "top_rated": "Mieux notés"
   },
+  "best_sellers": "Meilleures Ventes",
+  "view_all_products": "Voir tous les produits",
+  "wishlist": {
+    "title": "Ma Liste de Souhaits",
+    "items_count": "Articles enregistrés pour plus tard",
+    "fetch_error": "Échec du chargement de la liste",
+    "removed_success": "Produit retiré de la liste",
+    "remove_error": "Échec du retrait de la liste",
+    "empty_title": "Votre liste est vide",
+    "empty_message": "Enregistrez les articles que vous aimez ici.",
+    "go_shopping": "Aller à la Boutique",
+    "added_success": "Produit ajouté à la liste",
+    "add_error": "Échec de l'ajout à la liste",
+    "save": "Enregistrer dans la liste",
+    "saved": "Enregistré dans la liste"
+  },
+  "sort_by": "Trier par",
   "newsletter": {
     "title": "Restez Informé",
     "desc": "Abonnez-vous à notre newsletter pour des offres et des mises à jour exclusives.",
@@ -185,6 +210,7 @@
     "subscribe": "S’abonner"
   },
   "category": {
+    "all": "Tous",
     "beauty": "Beauté",
     "skincare": "Soins de la peau",
     "bodycare": "Soins du corps",
@@ -197,6 +223,44 @@
     "placeholder": "Rechercher des produits...",
     "loading": "Chargement...",
     "no_results": "Aucun produit trouvé pour \"{{query}}\""
+  },
+  "legal": {
+    "privacy_title": "Politique de Confidentialité",
+    "terms_title": "Termes et Conditions",
+    "last_updated": "Dernière mise à jour",
+    "privacy": {
+      "section1_title": "Collecte de Données",
+      "section1_content": "Nous recueillons les informations que vous nous fournissez directement, par exemple lorsque vous créez un compte, effectuez un achat ou contactez notre équipe d'assistance.",
+      "section2_title": "Sécurité des Données",
+      "section2_content": "Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles lorsque vous passez une commande ou accédez à vos informations.",
+      "section3_title": "Vos Droits",
+      "section3_content": "Vous avez le droit d'accéder à vos données personnelles, de les corriger ou de les supprimer. Veuillez nous contacter si vous souhaitez exercer ces droits."
+    },
+    "terms": {
+      "section1_title": "Acceptation des Termes",
+      "section1_content": "En accédant à ce site Web et en l'utilisant, vous acceptez d'être lié par les termes et dispositions de cet accord.",
+      "section2_title": "Compte Utilisateur",
+      "section2_content": "Vous êtes responsable du maintien de la confidentialité de votre compte et de votre mot de passe, ainsi que de la restriction de l'accès à votre ordinateur.",
+      "section3_title": "Informations sur les Produits",
+      "section3_content": "Nous essayons d'être aussi précis que possible. Cependant, nous ne garantissons pas que les descriptions de produits ou tout autre contenu sont exacts, complets ou sans erreur."
+    }
+  },
+  "faq": {
+    "title": "Foire Aux Questions",
+    "subtitle": "Tout ce que vous devez savoir sur l'expérience Saria Beauty.",
+    "q1": "Combien de temps prend la livraison ?",
+    "a1": "La livraison standard prend généralement 3 à 5 jours ouvrables en Tunisie.",
+    "q2": "Quelle est votre politique de retour ?",
+    "a2": "Nous acceptons les retours dans les 14 jours suivant la livraison pour les produits non ouverts et non utilisés.",
+    "q3": "Expédiez-vous à l'international ?",
+    "a3": "Actuellement, nous ne livrons qu'en Tunisie, mais nous travaillons à étendre notre portée bientôt !",
+    "q4": "Vos produits sont-ils sans cruauté ?",
+    "a4": "Oui, nous privilégions les marques sans cruauté et respectueuses de l'environnement.",
+    "q5": "Comment puis-je suivre ma commande ?",
+    "a5": "Une fois votre commande expédiée, vous recevrez un e-mail avec un numéro de suivi.",
+    "more_questions": "Vous avez encore des questions ?",
+    "contact_us_text": "Notre équipe d'assistance est là pour vous aider.",
+    "contact_us_btn": "Contacter le Support"
   },
   "order": {
     "loading": "Chargement de la commande...",

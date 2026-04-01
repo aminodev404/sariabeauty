@@ -13,11 +13,19 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
+  const [sort, setSort] = useState('newest');
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await api.get('/products');
+        setLoading(true);
+        const { data } = await api.get('/products', {
+          params: {
+            keyword: query,
+            category: category === 'All' ? '' : category,
+            sort: sort
+          }
+        });
         setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -25,8 +33,13 @@ const Shop = () => {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, []);
+
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 500); // Debounce search
+
+    return () => clearTimeout(timer);
+  }, [query, category, sort]);
 
   const resolveImage = (img) => {
     if (!img) return '';
@@ -42,14 +55,9 @@ const Shop = () => {
     return { name, description };
   };
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
+  const categories = ['All', 'Beauty', 'Skincare', 'Bodycare', 'Haircare', 'Tools'];
   
-  const filtered = products.filter(p => {
-    const matchCat = category === 'All' || p.category === category;
-    const { name, description } = displayFields(p);
-    const matchQuery = query.trim() === '' || (name + ' ' + description).toLowerCase().includes(query.toLowerCase());
-    return matchCat && matchQuery;
-  });
+  const filtered = products; // Sorting and filtering handled by backend now
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50/70 via-white to-rose-100/70 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
@@ -102,20 +110,37 @@ const Shop = () => {
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-300 border ${
-                    category === cat
-                      ? 'bg-primary border-primary text-white shadow-md shadow-primary/30 transform -translate-y-0.5'
-                      : 'bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-primary/50 dark:hover:border-primary/50 hover:text-primary dark:hover:text-primary hover:bg-rose-50 dark:hover:bg-gray-700'
-                  }`}
+            
+            <div className="flex flex-wrap items-center gap-4 justify-start md:justify-end">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t('sort_by')}:</span>
+                <select 
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 dark:text-white"
                 >
-                  {cat}
-                </button>
-              ))}
+                  <option value="newest">{t('shop.sort.newest')}</option>
+                  <option value="price_asc">{t('shop.sort.price_low_to_high')}</option>
+                  <option value="price_desc">{t('shop.sort.price_high_to_low')}</option>
+                  <option value="rating">{t('shop.sort.highest_rated')}</option>
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setCategory(cat)}
+                    className={`px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-300 border ${
+                      category === cat
+                        ? 'bg-primary border-primary text-white shadow-md shadow-primary/30 transform -translate-y-0.5'
+                        : 'bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-primary/50 dark:hover:border-primary/50 hover:text-primary dark:hover:text-primary hover:bg-rose-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {cat === 'All' ? t('category.all') : t(`category.${cat.toLowerCase()}`)}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

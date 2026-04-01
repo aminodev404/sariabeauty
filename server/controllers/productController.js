@@ -468,7 +468,7 @@ const buildProductsFromImages = () => {
   }
 };
 
-// @desc    Fetch all products
+// @desc    Fetch all products with filters, search and sort
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
@@ -481,24 +481,59 @@ const getProducts = async (req, res) => {
         console.log('Data Seeded from images');
       }
     }
-    
-    // Handle search functionality
-    const searchQuery = req.query.search;
+
+    const { keyword, category, sort } = req.query;
+
     let query = {};
-    
-    if (searchQuery) {
-      // Create a case-insensitive regex search for product names and descriptions
-      query = {
-        $or: [
-          { name: { $regex: searchQuery, $options: 'i' } },
-          { description: { $regex: searchQuery, $options: 'i' } }
-        ]
-      };
+
+    // 1. Keyword Search (Name or Description)
+    if (keyword) {
+      query.$or = [
+        { name: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } },
+        { 'translations.fr.name': { $regex: keyword, $options: 'i' } },
+        { 'translations.fr.description': { $regex: keyword, $options: 'i' } },
+        { 'translations.ar.name': { $regex: keyword, $options: 'i' } },
+        { 'translations.ar.description': { $regex: keyword, $options: 'i' } },
+      ];
     }
-    
-    // Fetch products with reviews included
-    const finalProducts = await Product.find(query).populate('reviews.user', 'name');
+
+    // 2. Category Filter
+    if (category && category !== 'All') {
+      query.category = category;
+    }
+
+    // 3. Sorting
+    let sortOptions = { createdAt: -1 }; // Default: Newest
+    if (sort === 'price_asc') {
+      sortOptions = { price: 1 };
+    } else if (sort === 'price_desc') {
+      sortOptions = { price: -1 };
+    } else if (sort === 'rating') {
+      sortOptions = { rating: -1 };
+    }
+
+    const finalProducts = await Product.find(query)
+      .populate('reviews.user', 'name')
+      .sort(sortOptions);
+
     res.json(finalProducts);
+  } catch (error) {
+    console.error('getProducts Error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Get top selling / highest rated products
+// @route   GET /api/products/top
+// @access  Public
+const getTopProducts = async (req, res) => {
+  try {
+    // For now, let's use highest rated as "Best Sellers" proxy
+    const products = await Product.find({})
+      .sort({ rating: -1, numReviews: -1 })
+      .limit(6);
+    res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
@@ -523,6 +558,7 @@ const getProductById = async (req, res) => {
 module.exports = {
   getProducts,
   getProductById,
+  getTopProducts,
   addProductReview: async (req, res) => {
     try {
       const { rating, comment } = req.body;

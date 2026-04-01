@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { useCurrency } from '../context/CurrencyContext';
-import { Trash2, ArrowRight, Minus, Plus } from 'lucide-react';
+import { Trash2, ArrowRight, Minus, Plus, ShoppingBag } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
 import { useTranslation } from 'react-i18next';
 

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingBag, Search, Menu, User, LogOut, X, Moon, Sun } from 'lucide-react';
+import { ShoppingBag, Search, Menu, User, LogOut, X, Moon, Sun, Heart } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import clsx from 'clsx';
 import { useAuth } from '../context/AuthContext';
@@ -157,6 +157,12 @@ const Header = () => {
           >
             <Search className="w-5 h-5" />
           </Motion.button>
+
+          <Motion.div whileHover={{ scale: 1.1, rotate: -5 }} whileTap={{ scale: 0.9 }}>
+            <Link to="/wishlist" className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-rose-50 dark:hover:bg-gray-800 transition-colors rounded-xl p-2 block" title="Wishlist">
+              <Heart className="w-5 h-5" />
+            </Link>
+          </Motion.div>
           
           {user ? (
             <div className="flex items-center space-x-2 rtl:space-x-reverse">

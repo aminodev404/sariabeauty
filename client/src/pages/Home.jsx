@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../context/CurrencyContext';
-import { Star, ShieldCheck, Truck, Sparkles, Quote, Mail } from 'lucide-react';
+import { Star, ShieldCheck, Truck, Sparkles, Quote, Mail, ArrowRight } from 'lucide-react';
 import api from '../api/axios';
 import Hero from '../components/Hero';
 import { toast } from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const { t, i18n } = useTranslation();
   const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
 
@@ -24,8 +26,12 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await api.get('/products');
-        setProducts(data || []);
+        const [pRes, topRes] = await Promise.all([
+          api.get('/products'),
+          api.get('/products/top')
+        ]);
+        setProducts(pRes.data || []);
+        setTopProducts(topRes.data || []);
       } catch (e) {
         console.error('Error fetching home products', e);
       } finally {
@@ -59,6 +65,12 @@ const Home = () => {
 
   return (
     <main className="bg-gradient-to-b from-rose-50/70 via-white to-rose-100/70 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
+      <Helmet>
+        <title>Saria Beauty | Premium Beauty Products</title>
+        <meta name="description" content="Saria Beauty offers the best premium beauty, skincare, and bodycare products in Tunisia. Shop now for elegance and quality." />
+        <meta property="og:title" content="Saria Beauty | Premium Beauty Products" />
+        <meta property="og:description" content="Discover premium beauty products at Saria Beauty. Quality and elegance delivered to your doorstep." />
+      </Helmet>
       <Hero />
 
       <section className="relative py-20">
@@ -178,7 +190,68 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-24">
+      {/* Best Sellers Section */}
+      <section className="py-20 bg-white/50 dark:bg-gray-800/50 transition-colors duration-300">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <p className="text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-primary/80 dark:text-rose-400/80">
+              {t('best_sellers')}
+            </p>
+            <h2 className="mt-4 text-3xl md:text-4xl font-serif text-gray-900 dark:text-white">
+              {t('home.best_sellers_title')}
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {topProducts.map((product) => (
+              <Link
+                key={product._id}
+                to={`/product/${product._id}`}
+                className="card-strong bg-white/90 dark:bg-gray-800/90 rounded-3xl overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 flex flex-col border border-rose-100/80 dark:border-gray-700"
+              >
+                <div className="h-64 overflow-hidden relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center shadow-inner m-3 mb-0">
+                  <img
+                    src={resolveImage(product.image)}
+                    alt={displayFields(product).name}
+                    className="max-w-full max-h-full object-contain p-4 transition-transform duration-700 group-hover:scale-110"
+                  />
+                  {product.rating > 4.7 && (
+                    <div className="absolute top-4 right-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                      {t('home.top_rated')}
+                    </div>
+                  )}
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-serif text-gray-900 dark:text-white mb-2 truncate">
+                    {displayFields(product).name}
+                  </h3>
+                  <div className="flex items-center gap-1 mb-4 text-amber-400">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-current' : ''}`} />
+                    ))}
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">({product.numReviews})</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-primary font-bold text-xl">
+                      {formatPrice(product.price)}
+                    </p>
+                    <span className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                      {t('shop_now')} <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link to="/shop" className="btn btn-primary px-10 py-4 rounded-full font-semibold">
+              {t('view_all_products')}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-30 dark:opacity-10">
           <div
             className="absolute inset-0 bg-repeat bg-center"

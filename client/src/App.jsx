@@ -19,6 +19,10 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Shop = lazy(() => import('./pages/Shop'));
 const Reviews = lazy(() => import('./pages/Reviews'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const FAQ = lazy(() => import('./pages/FAQ'));
 
 // Non-lazy components that are small or needed immediately
 import ChatAssistant from './components/ChatAssistant';
@@ -94,7 +98,11 @@ function App() {
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="/order-success/:id" element={<OrderSuccessScreen />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/reviews" element={<Reviews />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsAndConditions />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />

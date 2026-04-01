@@ -43,7 +43,7 @@ const Footer = () => {
             <ul className="space-y-3 text-gray-600 dark:text-gray-400">
               <li><Link to="/profile" className="hover:text-primary transition-colors">{t('footer.my_account')}</Link></li>
               <li><Link to="/cart" className="hover:text-primary transition-colors">{t('footer.cart')}</Link></li>
-              <li><Link to="#" className="hover:text-primary transition-colors">{t('footer.faq')}</Link></li>
+              <li><Link to="/faq" className="hover:text-primary transition-colors">{t('footer.faq')}</Link></li>
             </ul>
           </div>
 
@@ -66,8 +66,8 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-rose-200/50 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500 dark:text-gray-500">
           <p>© {new Date().getFullYear()} Saria Beauty. {t('footer.rights')}</p>
           <div className="mt-4 md:mt-0 flex items-center space-x-6 rtl:space-x-reverse">
-            <Link to="#" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
-            <Link to="#" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
+            <Link to="/privacy-policy" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/terms-conditions" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
           </div>
         </div>
       </div>

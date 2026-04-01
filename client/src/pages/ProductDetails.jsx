@@ -2,16 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCurrency } from '../context/CurrencyContext';
-import { ArrowLeft, Star, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Star, ShoppingBag, Heart } from 'lucide-react';
 import api from '../api/axios';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { Helmet } from 'react-helmet-async';
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const { formatPrice } = useCurrency();
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const { addToCart } = useCart();
   const [newReviewNotification, setNewReviewNotification] = useState(false);
   const [newReviewIds, setNewReviewIds] = useState([]);
@@ -42,6 +47,20 @@ const ProductDetails = () => {
     };
 
     fetchProduct();
+
+    // Check if in wishlist
+    const checkWishlist = async () => {
+      if (user) {
+        try {
+          const config = { headers: { Authorization: `Bearer ${user.token}` } };
+          const { data } = await api.get('/users/wishlist', config);
+          setIsInWishlist(data.some(p => p._id === id));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+    checkWishlist();
 
     // Set up real-time review updates using EventSource
     const baseUrl = api.defaults.baseURL.replace(/\/api$/, '');
@@ -79,14 +98,44 @@ const ProductDetails = () => {
 
     return () => {
       es.close();
-    };
-  }, [id]);
+    };fetchProduct();
+  }, [id, user]);
+
+  const toggleWishlist = async () => {
+    if (!user) {
+      toast.error(t('auth.login_required'));
+      return;
+    }
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      if (isInWishlist) {
+        await api.delete(`/users/wishlist/${id}`, config);
+        setIsInWishlist(false);
+        toast.success(t('wishlist.removed_success'));
+      } else {
+        await api.post(`/users/wishlist/${id}`, {}, config);
+        setIsInWishlist(true);
+        toast.success(t('wishlist.added_success'));
+      }
+    } catch (e) {
+      toast.error(t('wishlist.error'));
+    }
+  };
 
   if (loading) return <div className="text-center py-20 text-primary dark:text-rose-400">{t('product.loading')}</div>;
   if (!product) return <div className="text-center py-20 dark:text-white">{t('product.not_found')}</div>;
 
+  const { name, description } = displayFields(product);
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      <Helmet>
+        <title>{name} | Saria Beauty</title>
+        <meta name="description" content={description.substring(0, 160)} />
+        <meta property="og:title" content={`${name} | Saria Beauty`} />
+        <meta property="og:description" content={description.substring(0, 160)} />
+        <meta property="og:image" content={resolveImage(product.image)} />
+      </Helmet>
       <div className="container mx-auto px-4 py-8">
         <Link to="/" className="inline-flex items-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-rose-400 mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" />
@@ -141,26 +190,31 @@ const ProductDetails = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 w-max bg-white dark:bg-gray-800">
-                <span className={`w-3 h-3 rounded-full mr-2 ${product.countInStock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <span className={`text-sm font-medium ${product.countInStock > 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                  {product.countInStock > 0 ? t('in_stock') : t('out_of_stock')}
-                </span>
-              </div>
+              <button
+                onClick={() => addToCart(product, 1)}
+                disabled={product.countInStock === 0}
+                className={`flex-1 px-8 py-4 rounded-full flex items-center justify-center gap-2 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
+                  product.countInStock > 0 
+                    ? 'bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100' 
+                    : 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
+                }`}
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {product.countInStock > 0 ? t('add_to_cart') : t('out_of_stock')}
+              </button>
+              
+              <button
+                onClick={toggleWishlist}
+                className={`px-8 py-4 rounded-full flex items-center justify-center gap-2 font-semibold border-2 transition-all duration-300 ${
+                  isInWishlist 
+                    ? 'border-primary bg-primary text-white' 
+                    : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-primary hover:text-primary'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                {isInWishlist ? t('wishlist.saved') : t('wishlist.save')}
+              </button>
             </div>
-
-            <button
-              onClick={() => addToCart(product, 1)}
-              disabled={product.countInStock === 0}
-              className={`w-full md:w-auto px-8 py-4 rounded-full flex items-center justify-center gap-2 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
-                product.countInStock > 0 
-                  ? 'bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100' 
-                  : 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-              }`}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {product.countInStock > 0 ? t('add_to_cart') : t('out_of_stock')}
-            </button>
           </div>
         </div>
 

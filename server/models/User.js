@@ -12,6 +12,12 @@ const userSchema = mongoose.Schema({
   password: { type: String },
   googleId: { type: String },
   isAdmin: { type: Boolean, required: true, default: false },
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+    },
+  ],
 }, {
   timestamps: true,
 });

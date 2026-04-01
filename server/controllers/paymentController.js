@@ -2,7 +2,9 @@ const asyncHandler = require('express-async-handler');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const https = require('https');
 const Order = require('../models/Order');
+const User = require('../models/User');
 const { broadcastEvent } = require('../utils/sse');
+const { sendOrderConfirmation, sendAdminNewOrderAlert } = require('../utils/sendEmail');
 
 // @desc    Send Stripe Publishable Key
 // @route   GET /api/payment/config
@@ -248,6 +250,17 @@ const verifyPayPalPayment = asyncHandler(async (req, res) => {
     const saved = await order.save();
     broadcastEvent({ channel: 'order', type: 'order_updated', order: saved });
 
+    // Send Emails
+    try {
+      const user = await User.findById(order.user);
+      if (user) {
+        await sendOrderConfirmation(saved, user);
+        await sendAdminNewOrderAlert(saved);
+      }
+    } catch (emailError) {
+      console.error('Email confirmation error:', emailError);
+    }
+
     res.json(saved);
   } catch (error) {
     console.error('PayPal verification error:', error);
@@ -312,6 +325,17 @@ const stripeWebhook = async (req, res) => {
 
         const saved = await order.save();
         broadcastEvent({ channel: 'order', type: 'order_updated', order: saved });
+
+        // Send Emails
+        try {
+          const user = await User.findById(order.user);
+          if (user) {
+            await sendOrderConfirmation(saved, user);
+            await sendAdminNewOrderAlert(saved);
+          }
+        } catch (emailError) {
+          console.error('Email confirmation error:', emailError);
+        }
       }
     } else if (event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object;

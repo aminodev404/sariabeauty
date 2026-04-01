@@ -17,6 +17,9 @@ const createOrder = asyncHandler(async (req, res) => {
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
+  } else if (!shippingAddress || !shippingAddress.address || !shippingAddress.city || !shippingAddress.postalCode || !shippingAddress.country) {
+    res.status(400);
+    throw new Error('Please provide complete shipping address');
   } else {
     const itemsWithPrices = [];
     let itemsPrice = 0;
@@ -38,9 +41,9 @@ const createOrder = asyncHandler(async (req, res) => {
       itemsPrice += price * item.qty;
     }
 
-    const taxPrice = 0;
-    const shippingPrice = 0;
-    const totalPrice = itemsPrice + taxPrice + shippingPrice;
+    const taxPrice = Number((0.15 * itemsPrice).toFixed(2)); // 15% Tax (Example)
+    const shippingPrice = itemsPrice > 100 ? 0 : 10; // Free shipping over 100, else 10
+    const totalPrice = Number((itemsPrice + taxPrice + shippingPrice).toFixed(2));
 
     const order = new Order({
       user: req.user._id,

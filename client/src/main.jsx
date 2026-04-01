@@ -8,6 +8,7 @@ import { CartProvider } from './context/CartContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { HelmetProvider } from 'react-helmet-async';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -17,16 +18,18 @@ if (!googleClientId || googleClientId === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <AuthProvider>
-        <CurrencyProvider>
-          <ThemeProvider>
-            <CartProvider>
-              <App />
-            </CartProvider>
-          </ThemeProvider>
-        </CurrencyProvider>
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <HelmetProvider>
+      <GoogleOAuthProvider clientId={googleClientId}>
+        <AuthProvider>
+          <CurrencyProvider>
+            <ThemeProvider>
+              <CartProvider>
+                <App />
+              </CartProvider>
+            </ThemeProvider>
+          </CurrencyProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </HelmetProvider>
   </React.StrictMode>,
 )
