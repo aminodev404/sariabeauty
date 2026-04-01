@@ -1,17 +1,27 @@
 const asyncHandler = require('express-async-handler');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Stripe = require('stripe');
 const https = require('https');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const { broadcastEvent } = require('../utils/sse');
 const { sendOrderConfirmation, sendAdminNewOrderAlert } = require('../utils/sendEmail');
 
+let stripeClient = null;
+
+const getStripeClient = () => {
+  if (stripeClient) return stripeClient;
+  const apiKey = process.env.STRIPE_SECRET_KEY;
+  if (!apiKey) return null;
+  stripeClient = new Stripe(apiKey);
+  return stripeClient;
+};
+
 // @desc    Send Stripe Publishable Key
 // @route   GET /api/payment/config
 // @access  Public
 const sendStripeApiKey = asyncHandler(async (req, res) => {
   res.json({
-    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
   });
 });
 
@@ -19,6 +29,12 @@ const sendStripeApiKey = asyncHandler(async (req, res) => {
 // @route   POST /api/payment/create-payment-intent
 // @access  Private
 const createPaymentIntent = asyncHandler(async (req, res) => {
+  const stripe = getStripeClient();
+  if (!stripe) {
+    res.status(503);
+    throw new Error('Stripe is not configured');
+  }
+
   const { orderId } = req.body;
   const currency = 'aed';
 
@@ -270,6 +286,12 @@ const verifyPayPalPayment = asyncHandler(async (req, res) => {
 });
 
 const stripeWebhook = async (req, res) => {
+  const stripe = getStripeClient();
+  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    res.status(503).send('Stripe webhook is not configured');
+    return;
+  }
+
   const sig = req.headers['stripe-signature'];
 
   let event;

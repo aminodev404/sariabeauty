@@ -98,7 +98,7 @@ const ProductDetails = () => {
 
     return () => {
       es.close();
-    };fetchProduct();
+    };
   }, [id, user]);
 
   const toggleWishlist = async () => {
@@ -117,7 +117,7 @@ const ProductDetails = () => {
         setIsInWishlist(true);
         toast.success(t('wishlist.added_success'));
       }
-    } catch (e) {
+    } catch {
       toast.error(t('wishlist.error'));
     }
   };

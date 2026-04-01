@@ -49,7 +49,7 @@ const Wishlist = () => {
       await api.delete(`/users/wishlist/${productId}`, config);
       setWishlist(prev => prev.filter(p => p._id !== productId));
       toast.success(t('wishlist.removed_success'));
-    } catch (error) {
+    } catch {
       toast.error(t('wishlist.remove_error'));
     }
   };
